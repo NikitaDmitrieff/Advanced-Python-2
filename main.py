@@ -19,8 +19,9 @@ def main():
     path_finder = PathFinder(tubemap)
 
     # Examples usage of path_finder
-    stations = path_finder.get_shortest_path('South Kensington', 'Bond Street')
+    stations = path_finder.get_shortest_path('South Kensington', 'Bon Street')
 
+    # Avoid an error message in the case when the station name given was invalid
     if stations is not None:
         station_names = [station.name for station in stations]
         print(station_names)

@@ -39,13 +39,13 @@ class TubeMap:
                 and no error should be raised.
         """
 
-        # Verifies the filepath argument is valid
+        # Verifies the filepath argument is valid, raises a custom FileNotFoundError otherwise
         try:
             assert type(filepath) == str, f"filepath argument should be a string, not a {type(filepath)}"
             with open(filepath, "r") as jsonfile:
                 data = json.load(jsonfile)
-        except TypeError:
-            print("Filepath is invalid, no attribute has been updated")
+        except FileNotFoundError:
+            raise FileNotFoundError("Filepath is invalid, please verify the str")
 
         connections = data['connections']
         lines = data['lines']
@@ -53,13 +53,14 @@ class TubeMap:
 
         # Sets up the self.stations dictionary composed of items with:
         #       key (str) : id
-        #       value (Station object) : Station object corresponding to the id
+        #       value (Station) : Station object corresponding to the id
         for index in range(len(stations)):
 
             identity = stations[index]['id']
             name = stations[index]['name']
             zones = stations[index]['zone'].split(".")
 
+            # A station can be a part of multiple zones, this is treated below
             if len(zones) > 1:
                 zones = {int(zones[0]), int(int(zones[0]) + 1)}
             else:
@@ -79,11 +80,12 @@ class TubeMap:
                     type(name) == str and
                     type(zones) == set and
                     condition_int), "Wrong data type for the Station class"
+
             self.stations[identity] = Station(identity, name, zones)
 
         # Sets up the self.lines dictionary composed of items with:
         #       key (str) : id
-        #       value (Line object) : Line object corresponding to the id
+        #       value (Line) : Line object corresponding to the id
         for index in range(len(lines)):
             identity = lines[index]['line']
             name = lines[index]['name']
@@ -102,8 +104,8 @@ class TubeMap:
             except KeyError:
                 raise KeyError("Unexpected keys inside the connections data dict")
 
+            # Connection object needs 3 attributes: stations, line and time; these are gathered below
             stations = {self.stations[id_station1], self.stations[id_station2]}
-
             id_line = connections[index]['line']
             line = self.lines[id_line]
 
@@ -132,8 +134,6 @@ def test_import():
 
     print(tubemap.connections)
 
-
-# test_import()
 
 if __name__ == "__main__":
     test_import()

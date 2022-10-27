@@ -55,6 +55,7 @@ class PathFinder:
         graph_builder = NeighbourGraphBuilder()
         graph = graph_builder.build(self.tubemap)
 
+        # Makes sure the start and end stations are valid ones, returns a None value otherwise
         try:
             start_station_id = self.get_id(start_station_name)
             start_station_obj = self.tubemap.stations[start_station_id]
@@ -65,8 +66,8 @@ class PathFinder:
 
         unvisited_stations = set(self.tubemap.stations.keys())
 
-        path_dict = {}  # keeps a history of the connection leading to the station which was found most effective
-        tentative_distance = {}  # keeps a count of the 'distance' each station represents from the starting station
+        path_dict = {}  # Keeps a history of the connection leading to the station which was found most effective
+        tentative_distance = {}  # Keeps a count of the 'distance' each station represents from the starting station
 
         # Set up the appropriate nested dictionary structure to path_dict and tentative_distance:
         #   - Initialize the tentative_distance values as infinite values
@@ -78,7 +79,6 @@ class PathFinder:
                 tentative_distance[station] = 0
                 name_station = self.get_name(station)
                 path_dict[name_station] = None
-
             else:
                 tentative_distance[station] = math.inf
                 name_station = self.get_name(station)
@@ -109,9 +109,10 @@ class PathFinder:
                     # faster or not than through our current station
                     self.is_better(path_dict, tentative_distance, neighbour, alt, current_station, connection_used)
 
-        # Process path_dict to get the actual, readable result
+        # Process path_dict to get the actual, readable result gathered in the list path
         path = []
 
+        # Reads the path used from end to beginning and then reverse it
         current_station = end_station_name
         path.append(end_station_obj)
         while current_station != start_station_name:
@@ -168,11 +169,15 @@ class PathFinder:
             connection_used (Connection) : connection used for the new path
         """
 
+        connection_used = None
         alt = math.inf
         for connection_obj in graph[current_station][neighbour]:
+
             assert tentative_distance[current_station] < math.inf, "Distance of current " \
                                                                    "station marked as infinity"
+
             new_alt = tentative_distance[current_station] + connection_obj.time
+
             if alt > new_alt:
                 alt = new_alt
                 connection_used = connection_obj
@@ -194,6 +199,8 @@ class PathFinder:
         neigh = []
         station_obj = self.tubemap.stations[station_id]
 
+        # Works by looking at all Connection objects that include the
+        # station_id and adding the other station to the neigh list
         for connection in self.tubemap.connections:
             if station_obj in connection.stations:
                 for neighbouring_station_obj in connection.stations:
@@ -315,6 +322,7 @@ def test_shortest_path():
     expected = ["Covent Garden", "Leicester Square", "Piccadilly Circus",
                 "Green Park"]
     assert station_names == expected
+
 
 if __name__ == "__main__":
     test_shortest_path()
