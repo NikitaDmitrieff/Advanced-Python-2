@@ -1,5 +1,6 @@
 from tube.map import TubeMap
 
+
 class NeighbourGraphBuilder:
     """
     Task 2: Complete the definition of the NeighbourGraphBuilder class by:
@@ -75,7 +76,7 @@ class NeighbourGraphBuilder:
         nested_dict = {}
 
         # Initiates nested_dict
-        if not(isinstance(tubemap, TubeMap)):
+        if not (isinstance(tubemap, TubeMap)) or not tubemap.validity:
             pass
         else:
             for station_obj in tubemap.stations:
@@ -87,6 +88,9 @@ class NeighbourGraphBuilder:
                 for connection_obj in connections_with_station:
                     station_obj = tubemap.stations[station]
                     self.add_connection_to_nested_dict(nested_dict, station_obj, connection_obj)
+
+            assert nested_dict["11"]["163"] == nested_dict["163"]["11"], "Connection between stations" \
+                                                                         " is not bidirectional"
 
         return nested_dict
 

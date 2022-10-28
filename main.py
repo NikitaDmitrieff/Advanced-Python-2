@@ -9,7 +9,13 @@ def get_tubemap():
         tube.map.TubeMap: Initialised TubeMap object
     """
     tubemap = TubeMap()
-    tubemap.import_from_json("data/london.json")
+
+    try:
+        tubemap.import_from_json("data/london.json")
+    except NameError:
+        tubemap.validity = False
+        return None
+
     return tubemap
 
 
@@ -19,14 +25,13 @@ def main():
     path_finder = PathFinder(tubemap)
 
     # Examples usage of path_finder
-    stations = path_finder.get_shortest_path('South Kensington', 'Bon Street')
+    stations = path_finder.get_shortest_path('South Kensington', 'Bond Street')
 
     # Avoid an error message in the case when the station name given was invalid
     if stations is not None:
         station_names = [station.name for station in stations]
         print(station_names)
     else:
-        print("Invalid station name, return is:")
         print(stations)
 
 

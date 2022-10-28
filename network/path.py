@@ -61,7 +61,7 @@ class PathFinder:
             start_station_obj = self.tubemap.stations[start_station_id]
             end_station_id = self.get_id(end_station_name)
             end_station_obj = self.tubemap.stations[end_station_id]
-        except AssertionError:
+        except AssertionError and AttributeError:
             return None
 
         unvisited_stations = set(self.tubemap.stations.keys())
@@ -84,7 +84,29 @@ class PathFinder:
                 name_station = self.get_name(station)
                 path_dict[name_station] = None
 
-        # Starting Dijkstra's algorithm to find the shortest path (exhaustive comments here)
+        # Starting Dijkstra's algorithm to find the shortest path (exhaustive comments in the function)
+        self.dijkstra_algorithm(unvisited_stations, tentative_distance, graph, path_dict)
+
+        # Process path_dict to get the actual, readable result gathered in the list path
+        path = self.process(path_dict, start_station_name, end_station_name, end_station_obj)
+
+        return path
+
+    def dijkstra_algorithm(self, unvisited_stations, tentative_distance, graph, path_dict):
+        """ The core algorithm which computes the shortest path between the start station and all the other stations,
+                keeping track of the 'distances' in a dictionary 'path_dict'
+
+        Args:
+            unvisited_stations (set) : keeps a log of the stations that have not been visited by the algorithm yet
+            tentative_distance (dict) : keeps a count of the 'distance' each station represents from the starting
+                station
+            graph (dict) : nested dictionary encoding neighbouring connections between stations
+            path_dict (dict) : keeps a history of the connection leading to the station which was found most effective
+
+        Returns:
+            path_dict (dict) : Updated path_dict
+        """
+
         while len(unvisited_stations) > 0:
 
             # 'current station' must be the station with the lowest distance
@@ -109,7 +131,18 @@ class PathFinder:
                     # faster or not than through our current station
                     self.is_better(path_dict, tentative_distance, neighbour, alt, current_station, connection_used)
 
-        # Process path_dict to get the actual, readable result gathered in the list path
+    def process(self, path_dict, start_station_name, end_station_name, end_station_obj):
+        """ Process the path_dict to make it readable and in the appropriate format
+
+        Args:
+            path_dict (dict) : keeps a history of the connection leading to the station which was found most effective
+            start_station_name (str) : name of the starting station
+            end_station_name (str) : name of the ending station
+            end_station_obj (Station) : Station object of the ending station
+
+        Returns:
+            path (list) : one shortest path (from starting station to finish)
+        """
         path = []
 
         # Reads the path used from end to beginning and then reverse it
